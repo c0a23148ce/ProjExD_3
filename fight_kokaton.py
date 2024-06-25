@@ -158,6 +158,27 @@ class Score:
         screen.blit(self.img, self.xy)
 
 
+class Explosion:
+    def __init__(self, bomb:Bomb):
+        self.img = pg.image.load("fig/explosion.gif")
+        self.img2 =  pg.transform.flip(self.img, True, True)
+        self.lst = [self.img, self.img2]
+        self.img_rct = self.img.get_rect()
+        self.img2_rct = self.img2.get_rect()
+        # 爆発した爆弾のrct.centerに座標を設定
+        self.img_rct.center = bomb.rct.center
+        self.img2_rct.center = bomb.rct.center
+        self.life = 6
+
+    def update(self, screen:pg.Surface):
+        self.life-=1
+        if self.life>0:
+            for i in range(self.life):
+                if i % 2 == 0:
+                    screen.blit(self.img, self.img_rct)
+                else:
+                    screen.blit(self.img2, self.img2_rct)
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -168,6 +189,7 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     score = Score()
     beams = []
+    ex = []
     clock = pg.time.Clock()
     tmr = 0
 
@@ -201,15 +223,19 @@ def main():
                     bombs[i] = None
                     beam = None
                     score.score+=1
+                    #爆発エフェクト
+                    ex.append(Explosion(bombs))
+                    for i ,hoge in enumerate(ex):
+                        ex = [hoge for hoge in ex if hoge.life > 0]
                     #score.update(screen)
                     #爆弾を撃ち落としたらこうかとんが喜ぶ画像に切り替え
                     bird.change_img(6, screen)
-
+                    #複数ビームの衝突判定
                     for i ,hoge in enumerate(beams):
                         if beam is not None: 
                             if hoge.rct.colliderect(bomb.rct):
                                 beams[i] = None
-
+        #リストの更新
         bombs = [bomb for bomb in bombs if bomb is not None]
         beams = [beam for beam in beams if beam is not None]
 
@@ -226,6 +252,8 @@ def main():
             bomb.update(screen)
         for beam in beams: 
             beam.update(screen) 
+        for exs in ex:
+            exs.update(screen)
         score.update(screen)
         pg.display.update()
         tmr += 1
