@@ -205,9 +205,9 @@ def main():
                     #爆弾を撃ち落としたらこうかとんが喜ぶ画像に切り替え
                     bird.change_img(6, screen)
 
-                    for i ,hoge in enumerate(beams):
+                    for i ,beam in enumerate(beams):
                         if beam is not None: 
-                            if hoge.rct.colliderect(bomb.rct):
+                            if beam.rct.colliderect(bomb.rct):
                                 beams[i] = None
 
         bombs = [bomb for bomb in bombs if bomb is not None]
