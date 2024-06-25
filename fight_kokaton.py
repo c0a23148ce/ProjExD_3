@@ -143,6 +143,9 @@ class Bomb:
 
 
 class Score:
+    """"
+    スコア表示のクラス
+    """
     def __init__(self):
         self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
         self.img = self.fonto.render("0",0, (0, 0, 255))
@@ -164,6 +167,7 @@ def main():
     #bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     score = Score()
+    beams = []
     clock = pg.time.Clock()
     tmr = 0
 
@@ -173,7 +177,8 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                beam = Beam(bird)
+                beams.append(beam)      
         screen.blit(bg_img, [0, 0])
         
         for bomb in bombs:
@@ -199,7 +204,18 @@ def main():
                     #score.update(screen)
                     #爆弾を撃ち落としたらこうかとんが喜ぶ画像に切り替え
                     bird.change_img(6, screen)
+
+                    for i ,hoge in enumerate(beams):
+                        if beam is not None: 
+                            if hoge.rct.colliderect(bomb.rct):
+                                beams[i] = None
+
         bombs = [bomb for bomb in bombs if bomb is not None]
+        beams = [beam for beam in beams if beam is not None]
+
+        for i ,hoge in enumerate(beams):
+            if check_bound(hoge.rct) != (True, True):
+                beams.remove(beams[i])
 
 
         key_lst = pg.key.get_pressed()
@@ -208,6 +224,8 @@ def main():
             beam.update(screen)   
         for bomb in bombs:
             bomb.update(screen)
+        for beam in beams: 
+            beam.update(screen) 
         score.update(screen)
         pg.display.update()
         tmr += 1
